@@ -25,7 +25,7 @@ class Game:
     def OnClick(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
-            self.ball.addVector([5,5])
+            self.ball.addVector([2,2])
 
 
     def event(self):
@@ -38,13 +38,13 @@ class Game:
     def update(self):
         self.ball.move()
         self.ball.reduceVector(0.1)
+        self.ball.draw()
 
     def DisplayScreen(self):
         self.screen.fill((255, 255, 255))
 
     def display(self):
         self.DisplayScreen()
-        self.ball.draw()
         self.update()
         pygame.display.flip()
 

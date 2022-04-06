@@ -8,7 +8,7 @@ class ball:
         self.Vector = [0,0]
         self.screen = screen
         self.direction = [1,1]
-        self.VectorLimit = [10,10]
+        self.VectorLimit = [100,100]
         # ball
         self.ball = pygame.draw.circle(self.screen, (255,0,0),(self.x, self.y), 5)
         
@@ -20,7 +20,6 @@ class ball:
         self.x += self.Vector[0]
         self.y += self.Vector[1]
         self.collision()
-        self.checking()
 
     def reduceVector(self, reduceSpeed):
         if reduceSpeed < 0.1: print(f"Error reduceSpeed too slow {reduceSpeed}")
@@ -40,10 +39,6 @@ class ball:
 
         self.Vector[1] = int(self.Vector[1] * 10) / 10
 
-    def checking(self):
-        if self.Vector[0].__abs__() != self.Vector[1].__abs__():
-            print(f"Error Vector are not same [V0 : {self.Vector[0]} ; V1 : {self.Vector[1]}]")
-
     def collision(self):
         if self.y >= self.screen.get_height() or self.y <= 0:
             self.Vector[1] *= -1
@@ -55,13 +50,14 @@ class ball:
             self.direction[0] *= -1
             self.x += self.Vector[0]
     
-    def setVector(self, Vector):
-        self.Vector = Vector
+    def setVector(self, Vector, direction):
+        self.Vector[0] = Vector[0] * direction[0]*-1
+        self.Vector[1] = Vector[1] * direction[1]*-1
         self.SpeedLimit()
 
-    def addVector(self, Vector):
-        self.Vector[0] += Vector[0] * self.direction[0]
-        self.Vector[1] += Vector[1] * self.direction[1]
+    def addVector(self, Vector, direction):
+        self.Vector[0] += Vector[0] * direction[0]*-1
+        self.Vector[1] += Vector[1] * direction[1]*-1
         self.SpeedLimit()
 
     def SpeedLimit(self):

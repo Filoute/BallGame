@@ -1,5 +1,6 @@
 import pygame
 from ball import ball
+import math
 
 class Game:
     def __init__(self, screen):
@@ -13,25 +14,59 @@ class Game:
         #
 
         self.keys = None
-        # Images
+        # 
 
         self.ball = ball([150,100], self.screen)
+        self.posOnClick = 0
+        self.posOnRelease = 0
+        self.MousePress = False
         #
 
     def OnLeave(self, event):
         if event.type == pygame.QUIT:
             self.running = False
 
-    def OnClick(self, event):
-        if event.type == pygame.MOUSEBUTTONUP:
-            pos = pygame.mouse.get_pos()
-            self.ball.addVector([2,2])
+    def OnMouseClick(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.posOnClick = pygame.mouse.get_pos()
+            self.MousePress = True
 
+    def OnMouseRelease(self, event):
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.posOnRelease = pygame.mouse.get_pos()
+            self.ball.addVector(self.setVelocity(self.posOnRelease, self.posOnClick), self.setDirection(self.posOnRelease, self.posOnClick))
+            self.MousePress = False
+
+    def setVelocity(self, pos1, pos2):
+        return [math.sqrt(abs(pos1[0] - pos2[0])), math.sqrt(abs(pos1[1] - pos2[1]))]
+
+    def setDirection(self, pos1, pos2):
+        direction = [0,0]
+        if (pos1[0] - pos2[0]) > 0: direction[0] = 1
+        else: direction[0] = -1
+        if (pos1[1] - pos2[1]) > 0: direction[1] = 1
+        else: direction[1] = -1
+        return direction
+    
+    def getDistance(self, pos1, pos2):
+        return math.sqrt(math.pow(abs(pos1[0] - pos2[0]), 2) + math.pow(abs(pos1[1] - pos2[1]), 2))
+
+    def drawLine(self):
+        if self.MousePress:
+            direction = self.setDirection(pygame.mouse.get_pos(), self.posOnClick)
+            linePosX = self.ball.x + self.getDistance([self.ball.x, self.ball.y], pygame.mouse.get_pos()) * (direction[0] *-1)
+            linePosY = self.ball.y + self.getDistance([self.ball.x, self.ball.y], pygame.mouse.get_pos()) * (direction[1] *-1)
+
+       
+
+            pygame.draw.line(self.screen, (0,0,0), (self.ball.x + 5*direction[0], self.ball.y+5*direction[1]), (linePosX, linePosY), 2)
 
     def event(self):
         for event in pygame.event.get():
-            self.OnClick(event)
             self.OnLeave(event)
+
+            self.OnMouseClick(event)
+            self.OnMouseRelease(event)
 
         self.keys = pygame.key.get_pressed()
 
@@ -39,6 +74,7 @@ class Game:
         self.ball.move()
         self.ball.reduceVector(0.1)
         self.ball.draw()
+        self.drawLine()
 
     def DisplayScreen(self):
         self.screen.fill((255, 255, 255))
@@ -60,7 +96,7 @@ class Game:
 
 
 pygame.init()
-screen = pygame.display.set_mode((500, 300))
+screen = pygame.display.set_mode((700, 500))
 game = Game(screen)
 game.run()
 

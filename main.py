@@ -16,7 +16,7 @@ class Game:
         self.keys = None
         # 
 
-        self.ball = ball([150,100], self.screen)
+        self.ball = ball([100,100], self.screen)
         self.posOnClick = 0
         self.posOnRelease = 0
         self.MousePress = False
@@ -34,8 +34,9 @@ class Game:
     def OnMouseRelease(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
             self.posOnRelease = pygame.mouse.get_pos()
-            self.ball.addVector(self.setVelocity(self.posOnRelease, self.posOnClick), self.setDirection(self.posOnRelease, self.posOnClick))
             self.MousePress = False
+            self.ball.addVector(self.setVelocity(self.posOnRelease, [self.ball.x, self.ball.y]), self.setDirection(self.posOnRelease, [self.ball.x, self.ball.y]))
+            
 
     def setVelocity(self, pos1, pos2):
         return [math.sqrt(abs(pos1[0] - pos2[0])), math.sqrt(abs(pos1[1] - pos2[1]))]
@@ -54,12 +55,11 @@ class Game:
     def drawLine(self):
         if self.MousePress:
             direction = self.setDirection(pygame.mouse.get_pos(), self.posOnClick)
-            linePosX = self.ball.x + self.getDistance([self.ball.x, self.ball.y], pygame.mouse.get_pos()) * (direction[0] *-1)
-            linePosY = self.ball.y + self.getDistance([self.ball.x, self.ball.y], pygame.mouse.get_pos()) * (direction[1] *-1)
+            linePosX = self.ball.x + (pygame.mouse.get_pos()[0] - self.ball.x)
+            linePosY = self.ball.y + (pygame.mouse.get_pos()[1] - self.ball.y)
 
-       
-
-            pygame.draw.line(self.screen, (0,0,0), (self.ball.x + 5*direction[0], self.ball.y+5*direction[1]), (linePosX, linePosY), 2)
+            pygame.draw.line(self.screen, (0,200,200), (self.ball.x, self.ball.y), (linePosX, linePosY), 2)
+            pygame.draw.line(self.screen, (0,255,255), (self.ball.x, self.ball.y), (linePosX*-1, linePosY*-1), 2)
 
     def event(self):
         for event in pygame.event.get():
@@ -71,10 +71,10 @@ class Game:
         self.keys = pygame.key.get_pressed()
 
     def update(self):
+        self.drawLine()
         self.ball.move()
         self.ball.reduceVector(0.1)
         self.ball.draw()
-        self.drawLine()
 
     def DisplayScreen(self):
         self.screen.fill((255, 255, 255))

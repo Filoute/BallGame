@@ -22,12 +22,18 @@ class Game:
         self.posOnClick = 0
         self.posOnRelease = 0
         self.MousePress = False
+        self.powerBarUp = True
+        self.timeWhilePress = 0
+        self.powerBarColor = (0,0,0)
         #
         self.Texture = pygame.font.SysFont('Arial', 30)
 
     def OnLeave(self, event):
         if event.type == pygame.QUIT:
             self.running = False
+    
+    def powerBarColision(self):
+        pass
 
     def OnMouseClick(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

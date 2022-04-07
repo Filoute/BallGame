@@ -1,6 +1,8 @@
 import pygame
 from ball import ball
+from powerBar import powerBar
 import math
+from random import randint
 
 class Game:
     def __init__(self, screen):
@@ -15,12 +17,13 @@ class Game:
 
         self.keys = None
         # 
-
-        self.ball = ball([100,100], self.screen)
+        self.powerBar = powerBar(self.screen)
+        self.ball = ball([randint(5, self.ScreeWidth - 5),randint(5, self.ScreeHeight - 5)], self.screen)
         self.posOnClick = 0
         self.posOnRelease = 0
         self.MousePress = False
         #
+        self.Texture = pygame.font.SysFont('Arial', 30)
 
     def OnLeave(self, event):
         if event.type == pygame.QUIT:
@@ -33,55 +36,62 @@ class Game:
 
     def OnMouseRelease(self, event):
         if event.type == pygame.MOUSEBUTTONUP:
-            self.posOnRelease = pygame.mouse.get_pos()
-            self.MousePress = False
-            self.ball.addVector(self.setVelocity(self.posOnRelease, [self.ball.x, self.ball.y]), self.setDirection(self.posOnRelease, [self.ball.x, self.ball.y]))
-            
+            if pygame.mouse.get_pressed() == (0,0,0):
+                self.posOnRelease = pygame.mouse.get_pos()
+                self.MousePress = False
+                self.ball.addVector(self.setVelocity(self.posOnRelease, [self.ball.x, self.ball.y]), self.setDirection(self.posOnRelease, [self.ball.x, self.ball.y]))
 
     def setVelocity(self, pos1, pos2):
-        return [math.sqrt(abs(pos1[0] - pos2[0])), math.sqrt(abs(pos1[1] - pos2[1]))]
+        return [math.sqrt(abs(pos1[0] - pos2[0])) * self.powerBar.shootPower(), math.sqrt(abs(pos1[1] - pos2[1])) * self.powerBar.shootPower()]
 
     def setDirection(self, pos1, pos2):
-        direction = [0,0]
-        if (pos1[0] - pos2[0]) > 0: direction[0] = 1
-        else: direction[0] = -1
-        if (pos1[1] - pos2[1]) > 0: direction[1] = 1
-        else: direction[1] = -1
+        direction = [math.sqrt(pos1[0]) / 10 - math.sqrt(pos2[0]) / 10,math.sqrt(pos1[1]) / 10 - math.sqrt(pos2[1]) / 10]
         return direction
     
     def getDistance(self, pos1, pos2):
         return math.sqrt(math.pow(abs(pos1[0] - pos2[0]), 2) + math.pow(abs(pos1[1] - pos2[1]), 2))
 
-    def drawLine(self):
-        if self.MousePress:
-            direction = self.setDirection(pygame.mouse.get_pos(), self.posOnClick)
-            linePosX = self.ball.x + (pygame.mouse.get_pos()[0] - self.ball.x)
-            linePosY = self.ball.y + (pygame.mouse.get_pos()[1] - self.ball.y)
-
-            pygame.draw.line(self.screen, (0,200,200), (self.ball.x, self.ball.y), (linePosX, linePosY), 2)
-            pygame.draw.line(self.screen, (0,255,255), (self.ball.x, self.ball.y), (linePosX*-1, linePosY*-1), 2)
-
     def event(self):
         for event in pygame.event.get():
             self.OnLeave(event)
-
             self.OnMouseClick(event)
             self.OnMouseRelease(event)
 
         self.keys = pygame.key.get_pressed()
 
-    def update(self):
-        self.drawLine()
+    def displayText(self):
+        pass
+        # Price = self.Texture.render(f'time: {self.timeWhilePress/ 60} / {self.timeWhilePress} \ : / {self.shootPower()}', True, (0, 0, 0))
+        # screen.blit(Price, (10, 10))
+
+    def ballUpdate(self):
+        self.ball.update()
+        self.ball.drawLine()
         self.ball.move()
         self.ball.reduceVector(0.1)
         self.ball.draw()
+        if self.MousePress:
+            co = self.setVelocity(pygame.mouse.get_pos(), [self.ball.x, self.ball.y])
+            direct = self.setDirection(pygame.mouse.get_pos(), [self.ball.x, self.ball.y])
+            pygame.draw.circle(self.screen, (255,155,0) ,((co[0] *-1* direct[0] + self.ball.x), (co[1]*-1* direct[1] + self.ball.y) ) , 5)
+
+    def powerBarUpdate(self):
+        self.powerBar.draw()
+        self.powerBar.update()
+
+    def update(self):
+        self.powerBarUpdate()
+        self.ballUpdate()
 
     def DisplayScreen(self):
         self.screen.fill((255, 255, 255))
 
     def display(self):
         self.DisplayScreen()
+        self.displayText()
+        
         self.update()
+
         pygame.display.flip()
 
     def run(self):

@@ -9,9 +9,17 @@ class ball:
         self.screen = screen
         self.direction = [1,1]
         self.VectorLimit = [100,100]
+        self.MousePress = False
         # ball
         self.ball = pygame.draw.circle(self.screen, (255,0,0),(self.x, self.y), 5)
         
+    def update(self):
+        for i in range(0, 3):
+            if pygame.mouse.get_pressed()[i]:
+                self.MousePress = True
+                break
+            else: self.MousePress = False
+
 
     def draw(self):
         self.ball = pygame.draw.circle(self.screen, (255,0,0),(self.x, self.y), 5)
@@ -66,3 +74,15 @@ class ball:
 
         if self.Vector[1] > self.VectorLimit[1]: self.Vector[1] = self.VectorLimit[1] - 1
         elif self.Vector[1] < self.VectorLimit[1]*-1:  self.Vector[1] = self.VectorLimit[1]*-1 + 1
+    
+    def drawLine(self):
+        if self.MousePress:
+            linePosX = self.x + (pygame.mouse.get_pos()[0] - self.x)
+            linePosY = self.y + (pygame.mouse.get_pos()[1] - self.y)
+
+
+            pygame.draw.line(self.screen, (0,200,200), (self.x, self.y), (linePosX, linePosY), 2)
+            pygame.draw.line(self.screen, (0,255,255), (self.x, self.y), (linePosX, linePosY), 2)
+    
+    def drawIndicator(self):
+        pass

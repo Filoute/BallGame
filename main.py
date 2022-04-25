@@ -1,7 +1,8 @@
 import pygame
 from ball import ball
 from powerBar import powerBar
-import math
+from directionArrow import directionArrow
+from mathFunction import mathFunction
 from random import randint
 
 class Game:
@@ -16,7 +17,8 @@ class Game:
         #
 
         self.keys = None
-        # 
+        #
+        self.directionArrow = directionArrow(self.screen)
         self.powerBar = powerBar(self.screen)
         self.ball = ball([randint(5, self.ScreeWidth - 5),randint(5, self.ScreeHeight - 5)], self.screen)
         self.posOnClick = 0
@@ -45,17 +47,7 @@ class Game:
             if pygame.mouse.get_pressed() == (0,0,0):
                 self.posOnRelease = pygame.mouse.get_pos()
                 self.MousePress = False
-                self.ball.addVector(self.setVelocity(self.posOnRelease, [self.ball.x, self.ball.y]), self.setDirection(self.posOnRelease, [self.ball.x, self.ball.y]))
-
-    def setVelocity(self, pos1, pos2):
-        return [math.sqrt(abs(pos1[0] - pos2[0])) * self.powerBar.shootPower(), math.sqrt(abs(pos1[1] - pos2[1])) * self.powerBar.shootPower()]
-
-    def setDirection(self, pos1, pos2):
-        direction = [math.sqrt(pos1[0]) / 10 - math.sqrt(pos2[0]) / 10,math.sqrt(pos1[1]) / 10 - math.sqrt(pos2[1]) / 10]
-        return direction
-    
-    def getDistance(self, pos1, pos2):
-        return math.sqrt(math.pow(abs(pos1[0] - pos2[0]), 2) + math.pow(abs(pos1[1] - pos2[1]), 2))
+                self.ball.addVector(mathFunction.setVelocity(self.posOnRelease, [self.ball.x, self.ball.y], self.powerBar.shootPower()), mathFunction.setDirection(self.posOnRelease, [self.ball.x, self.ball.y]))
 
     def event(self):
         for event in pygame.event.get():
@@ -70,16 +62,16 @@ class Game:
         # Price = self.Texture.render(f'time: {self.timeWhilePress/ 60} / {self.timeWhilePress} \ : / {self.shootPower()}', True, (0, 0, 0))
         # screen.blit(Price, (10, 10))
 
+    def arrowDirectionUpdate(self):
+        self.directionArrow.update()
+        self.directionArrow.draw(self.ball.pos)
+
     def ballUpdate(self):
         self.ball.update()
         self.ball.drawLine()
         self.ball.move()
         self.ball.reduceVector(0.1)
         self.ball.draw()
-        if self.MousePress:
-            co = self.setVelocity(pygame.mouse.get_pos(), [self.ball.x, self.ball.y])
-            direct = self.setDirection(pygame.mouse.get_pos(), [self.ball.x, self.ball.y])
-            pygame.draw.circle(self.screen, (255,155,0) ,((co[0] *-1* direct[0] + self.ball.x), (co[1]*-1* direct[1] + self.ball.y) ) , 5)
 
     def powerBarUpdate(self):
         self.powerBar.draw()
@@ -87,6 +79,7 @@ class Game:
 
     def update(self):
         self.powerBarUpdate()
+        self.arrowDirectionUpdate()
         self.ballUpdate()
 
     def DisplayScreen(self):

@@ -27,6 +27,7 @@ class ball:
     def move(self):
         self.x += self.Vector[0]
         self.y += self.Vector[1]
+        self.pos = [self.x, self.y]
         self.collision()
 
     def reduceVector(self, reduceSpeed):
